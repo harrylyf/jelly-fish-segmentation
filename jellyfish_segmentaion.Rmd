@@ -1,0 +1,87 @@
+---
+title: "jellyfish_segmentation"
+author: "Yufan Liu"
+date: "9/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+options(scipen=999)
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+```
+
+
+```{r,message=F}
+bs5_dice = read_csv("output_data/5_dice.csv") %>% rename(accuracy_5="Value")
+bs5_loss = read_csv("output_data/5_loss.csv") %>% rename(loss_5="Value")
+bs_3dice=read_csv("output_data/3_dice.csv") %>% rename(accuracy_3="Value")
+bs_3loss=read_csv("output_data/3_loss.csv") %>% rename(loss_3="Value")
+bs_2dice=read_csv("output_data/2_dice.csv") %>% rename(accuracy_2="Value")
+bs_2loss=read_csv("output_data/2_loss.csv") %>% rename(loss_2="Value")
+bs_10dice=read_csv("output_data/10_dice.csv") %>% rename(accuracy_10="Value")
+bs_10loss=read_csv("output_data/10_loss.csv") %>% rename(loss_10="Value")
+```
+
+
+```{r,message=F}
+total_dice = left_join(bs5_dice, select(bs_3dice, Step, accuracy_3), by = "Step")
+total_dice = left_join(total_dice, select(bs_2dice, Step, accuracy_2), by = "Step")
+total_dice = left_join(total_dice, select(bs_10dice, Step, accuracy_10), by = "Step")
+total_dice = total_dice %>% select(-`Wall time`)
+
+total_loss = left_join(bs5_loss, select(bs_3loss, Step, loss_3), by = "Step")
+total_loss = left_join(total_loss, select(bs_2loss, Step, loss_2), by = "Step")
+total_loss = left_join(total_loss, select(bs_10loss, Step, loss_10), by = "Step")
+total_loss = total_loss %>% select(-`Wall time`)
+```
+
+
+
+```{r,message=F}
+ggplot(total_dice, aes(Step)) + 
+  geom_line(aes(y=accuracy_5, colour="accuracy_5")) +
+  geom_line(aes(y=accuracy_3, colour="accuracy_3")) +
+  geom_line(aes(y=accuracy_10, colour="accuracy_10")) +
+  geom_line(aes(y=accuracy_2, colour="accuracy_2")) +
+  ylab("accuracy")
+```
+
+```{r,message=F}
+ggplot(filter(total_dice, Step<50), aes(Step)) + 
+  geom_line(aes(y=accuracy_5, colour="accuracy_5")) +
+  geom_line(aes(y=accuracy_3, colour="accuracy_3")) +
+  geom_line(aes(y=accuracy_10, colour="accuracy_10")) +
+  geom_line(aes(y=accuracy_2, colour="accuracy_2")) +
+  ylab("accuracy")
+```
+
+
+```{r,message=F}
+ggplot(total_loss, aes(Step)) + 
+  geom_line(aes(y=loss_5, colour="loss_5")) +
+  geom_line(aes(y=loss_3, colour="loss_3")) +
+  geom_line(aes(y=loss_10, colour="loss_10")) +
+  geom_line(aes(y=loss_2, colour="loss_2")) +
+  ylab("loss")
+```
+
+```{r,message=F}
+ggplot(filter(total_loss, Step<50), aes(Step)) + 
+  geom_line(aes(y=loss_5, colour="loss_5")) +
+  geom_line(aes(y=loss_3, colour="loss_3")) +
+  geom_line(aes(y=loss_10, colour="loss_10")) +
+  geom_line(aes(y=loss_2, colour="loss_2"))  +
+  ylab("loss")
+```
+
+
+
+
+
+
+
+
+
+
